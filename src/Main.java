@@ -39,6 +39,7 @@ public class Main {
                 eof = true;
             }
         }
+        pretty_print();
 
         scraper.driver.quit();
         System.out.println("Done?");
@@ -59,6 +60,25 @@ public class Main {
             map.put(a_pc.size, new HashMap<>() {{put(a_pc.model_number, new HashMap<>() {{put(a_pc.processor, 1);}});}});
         }
         System.out.println(map);
+
+    }
+    
+    private static void pretty_print(){
+        System.out.println("Size\t\tModel\t\tProcessor\t\tQuantity\t\tTotal");
+        int total = 0;
+        for (Map.Entry<String, Map<String, Map<String, Integer>>> sub_map : map.entrySet()){
+            System.out.print(sub_map.getKey() + "\t");
+            for (Map.Entry<String, Map<String, Integer>> sub_sub_map : sub_map.getValue().entrySet()){
+                System.out.print(sub_sub_map.getKey() + "\t\t");
+                for(Map.Entry<String, Integer> sub_sub_sub_map : sub_sub_map.getValue().entrySet()){
+                    System.out.println(sub_sub_sub_map.getKey() + "\t\t\t" + sub_sub_sub_map.getValue());
+                    total += sub_sub_sub_map.getValue();
+                }
+
+            }
+
+        }
+        System.out.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\t" + total);
 
     }
 

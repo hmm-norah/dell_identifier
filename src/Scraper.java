@@ -21,9 +21,18 @@ public class Scraper {
         driver.get(URL);
         String processor = "NOT FOUND!", size = "NOT FOUND!", model_number_entry = "NOT FOUND!";
 
-        boolean isPresent = driver.findElements(By.cssSelector("#iframeSurvey")).size() > 0;
-        if(isPresent){
-            driver.findElement(By.cssSelector("#buttonsColumn > span:nth-child(2)")).click();
+        try {
+            driver.switchTo().frame(driver.findElement(By.xpath("//*[@id=\"iframeSurvey\"]")));
+            System.out.println("Switch iFrame");
+            boolean isPresent = driver.findElements(By.cssSelector("#iframeSurvey")).size() > 0;
+            System.out.println("Find iFrame window");
+            if (isPresent) {
+                driver.findElement(By.cssSelector("#buttonsColumn > span:nth-child(2)")).click();
+                System.out.println("Find button");
+            }
+            driver.switchTo().defaultContent();
+        }catch(NoSuchElementException not_found){
+            System.out.println("iFrame not found.");
         }
 
         safeclick("#tab-configuration > a");
