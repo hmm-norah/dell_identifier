@@ -64,12 +64,12 @@ public class Main {
     }
     
     private static void pretty_print(){
-        System.out.println("Size\t\tModel\t\tProcessor\t\tQuantity\t\tTotal");
+        System.out.println("Size\t\t\t\tModel\t\tProcessor\t\tQuantity\t\tTotal");
         int total = 0;
         for (Map.Entry<String, Map<String, Map<String, Integer>>> sub_map : map.entrySet()){
-            System.out.print(sub_map.getKey() + "\t");
+            System.out.print(sub_map.getKey() + "\n");
             for (Map.Entry<String, Map<String, Integer>> sub_sub_map : sub_map.getValue().entrySet()){
-                System.out.print(sub_sub_map.getKey() + "\t\t");
+                System.out.print("\t\t\t\t" + sub_sub_map.getKey() + "\t\t");
                 for(Map.Entry<String, Integer> sub_sub_sub_map : sub_sub_map.getValue().entrySet()){
                     System.out.println(sub_sub_sub_map.getKey() + "\t\t\t" + sub_sub_sub_map.getValue());
                     total += sub_sub_sub_map.getValue();
@@ -78,7 +78,7 @@ public class Main {
             }
 
         }
-        System.out.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\t" + total);
+        System.out.println("\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t" + total);
 
     }
 

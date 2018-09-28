@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 public class Scraper {
     WebDriver driver;
+    private String processor, size, model_number_entry;
 
     Scraper (){
         driver = new ChromeDriver();
@@ -19,17 +20,18 @@ public class Scraper {
     public String[] fetch(String id, String[] bundle){
         String URL = "https://www.dell.com/support/home/us/en/04/product-support/servicetag/" + id;
         driver.get(URL);
-        String processor = "NOT FOUND!", size = "NOT FOUND!", model_number_entry = "NOT FOUND!";
+        processor = "NOT FOUND!";
+        size = "NOT FOUND!";
+        model_number_entry = "NOT FOUND!";
 
         try {
             driver.switchTo().frame(driver.findElement(By.xpath("//*[@id=\"iframeSurvey\"]")));
-            System.out.println("Switch iFrame");
-            boolean isPresent = driver.findElements(By.cssSelector("#iframeSurvey")).size() > 0;
-            System.out.println("Find iFrame window");
-            if (isPresent) {
-                driver.findElement(By.cssSelector("#buttonsColumn > span:nth-child(2)")).click();
-                System.out.println("Find button");
-            }
+            System.out.println("Switching iFrame");
+
+            System.out.println("Finding button to click...");
+            driver.findElement(By.cssSelector("#buttonsColumn > span:nth-child(2)")).click();
+
+            System.out.println("Switching back to default content.");
             driver.switchTo().defaultContent();
         }catch(NoSuchElementException not_found){
             System.out.println("iFrame not found.");
@@ -43,43 +45,18 @@ public class Scraper {
         safeclick("#hrefsubSectionB");
 
         int i = 1;
+        boolean model_set = false;
 
         // need to add ability to find how many divs there are instead of this bad method.
         try {
-            while(size.equals("NOT FOUND!") || model_number_entry.equals("NOT FOUND!") || processor.equals("NOT FOUND!")) {
-                    String text_entry = driver.findElement(By.cssSelector("#subSectionB > div:nth-child(2) > div > " +
-                            "div:nth-child(" + i + ") > div.bottom-offset-10 > a > span.show-collapsed")).getText();
-
-                if (text_entry.contains("Ultra Small Form Factor EPA") || text_entry.contains("Ultra Small Form  Factor EPA"))
-                    size = "Ultra Small (US)";
-                else if (text_entry.contains("Small Form Facto r") || text_entry.contains("Slim Form Factor"))
-                    size = "Small (S)";
-                else if (text_entry.contains("Desktop Base") || text_entry.contains("Desktop EPA") ||
-                        text_entry.contains("Desktop EPA Base"))
-                    size = "Half-Height (DT)";
-                else if (text_entry.contains("MT CTO") || text_entry.contains("Minitower EPA Ba se") ||
-                        text_entry.contains("Minitower Base"))
-                    size = "Mid-Tower (MT)";
-
-
-                if(text_entry.contains("OptiPlex")){
-                    Pattern pattern = Pattern.compile("(?<=\\bOptiPlex\\s)(\\w+)");
-                    Matcher matcher = pattern.matcher(text_entry);
-                    if (matcher.find())
-                        model_number_entry = matcher.group(1);
-                }
-
-                if (text_entry.contains("Core i5") || text_entry.contains("CI5"))
-                    processor = "Core i5";
-                else if (text_entry.contains("Core i7") || text_entry.contains(("CI7")))
-                    processor = "Core i7";
-                else if (text_entry.contains("Core i3") || text_entry.contains("CORE i3") || text_entry.contains("CI3"))
-                    processor = "Core i3";
-
-                ++i;
-            }
+            hunt();
         }catch(NoSuchElementException not_found){
-            System.out.println("Ran out of elements!");
+            System.out.println("Ran out of elements! Checking again...");
+            try {
+                hunt();
+            }catch(NoSuchElementException not_found_again){
+                System.out.println("Still couldn't find what I was looking for...");
+            }
         }
 
         if(size.equals("NOT FOUND!")){
@@ -138,6 +115,45 @@ public class Scraper {
         bundle[2] = processor;
 
         return bundle;
+    }
+
+    private void hunt(){
+        boolean model_set = false;
+        int i = 1;
+
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+        while(size.equals("NOT FOUND!") || model_number_entry.equals("NOT FOUND!") || processor.equals("NOT FOUND!")) {
+            String text_entry = driver.findElement(By.cssSelector("#subSectionB > div:nth-child(2) > div > " +
+                    "div:nth-child(" + i + ") > div.bottom-offset-10 > a > span.show-collapsed")).getText();
+
+            if (text_entry.contains("Ultra Small Form Factor EPA") || text_entry.contains("Ultra Small Form  Factor EPA"))
+                size = "Ultra Small (US)";
+            else if (text_entry.contains("Small Form Facto r") || text_entry.contains("Slim Form Factor"))
+                size = "Small (S)";
+            else if (text_entry.contains("Desktop Base") || text_entry.contains("Desktop EPA") ||
+                    text_entry.contains("Desktop EPA Base"))
+                size = "Half-Height (DT)";
+            else if (text_entry.contains("MT CTO") || text_entry.contains("Minitower EPA Ba se") ||
+                    text_entry.contains("Minitower Base"))
+                size = "Mid-Tower (MT)";
+
+
+            if(!model_set && text_entry.contains("OptiPlex")){
+                Pattern pattern = Pattern.compile("(?<=\\bOptiPlex\\s)(\\w+)");
+                Matcher matcher = pattern.matcher(text_entry);
+                if (matcher.find())
+                    model_number_entry = matcher.group(1);
+                model_set = true;
+            }
+
+            if (text_entry.contains("Core i5") || text_entry.contains("CI5"))
+                processor = "Core i5";
+            else if (text_entry.contains("Core i7") || text_entry.contains(("CI7")))
+                processor = "Core i7";
+            else if (text_entry.contains("Core i3") || text_entry.contains("CORE i3") || text_entry.contains("CI3"))
+                processor = "Core i3";
+            i += 1;
+        }
     }
 
     private void safeclick(String selector){
