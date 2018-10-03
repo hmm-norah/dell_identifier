@@ -9,10 +9,9 @@ public class Main {
         Scraper scraper = new Scraper();
         String[] bundle = new String[] {"", "", ""};
         Scanner ledger;
-        List<PC> list = new ArrayList<>();
+        //List<PC> list = new ArrayList<>();
 
-
-        File file = new File("/Users/norah/" + args[0]);
+        File file = new File(System.getProperty("user.home") + File.separator + args[0]);
         try {
             ledger = new Scanner(file);
         }catch(FileNotFoundException not_found){
@@ -28,7 +27,7 @@ public class Main {
             scraper.fetch(dell_id, bundle);
             PC a_pc = new PC(bundle, fg_id, dell_id);
             a_pc.display();
-            list.add(a_pc);
+            //list.add(a_pc);
 
             tabulate(a_pc);
 
@@ -42,7 +41,6 @@ public class Main {
         pretty_print();
 
         scraper.driver.quit();
-        System.out.println("Done?");
     }
 
     private static void tabulate(PC a_pc){
@@ -69,7 +67,7 @@ public class Main {
         for (Map.Entry<String, Map<String, Map<String, Integer>>> sub_map : map.entrySet()){
             System.out.print(sub_map.getKey() + "\n");
             for (Map.Entry<String, Map<String, Integer>> sub_sub_map : sub_map.getValue().entrySet()){
-                System.out.print("\t\t\t\t" + sub_sub_map.getKey() + "\t\t");
+                System.out.print("\t\t\t\t\t" + sub_sub_map.getKey() + "\t\t");
                 for(Map.Entry<String, Integer> sub_sub_sub_map : sub_sub_map.getValue().entrySet()){
                     System.out.println(sub_sub_sub_map.getKey() + "\t\t\t" + sub_sub_sub_map.getValue());
                     total += sub_sub_sub_map.getValue();

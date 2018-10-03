@@ -1,5 +1,7 @@
-public class PC {
-   String model_number, size , processor, fg_id, serial_id;
+class PC {
+   String model_number, size , processor;
+   private String fg_id, serial_id;
+
 
    PC(String[] pc_bundle, String fg_id, String serial_id){
        model_number = pc_bundle[0];
@@ -9,7 +11,7 @@ public class PC {
        this.serial_id = serial_id;
    }
 
-   public void display(){
+   void display(){
        System.out.println("Model Number: " + model_number + '\n'
        + "Size: " + size + '\n'
        + "Processor: " + processor + '\n'
