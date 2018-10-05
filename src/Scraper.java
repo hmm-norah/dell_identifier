@@ -12,18 +12,20 @@ import java.util.regex.Pattern;
 
 class Scraper {
     WebDriver driver;
-    private String processor, size, model_number_entry;
+    private String processor, size, model_number_entry, fg_id, id;
 
     Scraper (){
         driver = new ChromeDriver();
     }
 
-    String[] fetch(String id, String[] bundle){
+    String[] fetch(String id, String fg_id, String[] bundle){
         String URL = "https://www.dell.com/support/home/us/en/04/product-support/servicetag/" + id;
         driver.get(URL);
         processor = "NOT FOUND!";
         size = "NOT FOUND!";
         model_number_entry = "NOT FOUND!";
+        this.id = id;
+        this.fg_id = fg_id;
 
         try {
             driver.switchTo().frame(driver.findElement(By.xpath("//*[@id=\"iframeSurvey\"]")));
@@ -110,13 +112,19 @@ class Scraper {
         bundle[1] = size;
         bundle[2] = processor;
 
+        System.out.println("Model Number: " + model_number_entry + '\n'
+                + "Size: " + size + '\n'
+                + "Processor: " + processor + '\n'
+                + "Free Geek ID: " + fg_id + '\n'
+                + "Dell ID: " + id + '\n');
+
         return bundle;
     }
 
     private void hunt(){
         int i = 1;
 
-        driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
         model_number_entry = driver.findElement(By.cssSelector("#pd-support-banner > div > div > div > div > h1 > span")).getText().split(" ")[3];
         while(size.equals("NOT FOUND!") || model_number_entry.equals("NOT FOUND!") || processor.equals("NOT FOUND!")) {
             String text_entry = driver.findElement(By.cssSelector("#subSectionB > div:nth-child(2) > div > " +

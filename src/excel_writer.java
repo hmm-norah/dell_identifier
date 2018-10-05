@@ -8,8 +8,15 @@ import java.util.Scanner;
 
 public class excel_writer {
     public static void write(Map map){
+        Scanner reader = new Scanner(System.in);  // Reading from System.in
         System.out.println("Enter shipment name: ");
+        String shipment_name = reader.nextLine(); reader.close();
+
         XSSFWorkbook wb = new XSSFWorkbook();
-        XSSFSheet sheet = wb.createSheet(new Scanner(System.in).nextLine());
+        XSSFSheet sheet = wb.createSheet(shipment_name);
+
+
+
+
     }
 }
