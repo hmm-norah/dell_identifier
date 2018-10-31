@@ -10,4 +10,9 @@ class PC {
    public boolean equals(PC to_compare){
       return model_number.equals(to_compare.model_number) && size.equals(to_compare.size) && processor.equals(to_compare.processor);
    }
+
+   public String[] get_data(){
+       String[] data = {model_number, size, processor};
+       return data;
+    }
 }

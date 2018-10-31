@@ -9,13 +9,13 @@ public class Main {
     public static void main(String[] args) {
         File file = new File(System.getProperty("user.home") + File.separator + args[0]);
         excel_writer writer = new excel_writer();
+        populate(file);
         try {
-            writer.write(map, System.getProperty("user.home") + File.separator);
+            writer.write(systems, System.getProperty("user.home") + File.separator);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         /*
-        populate(file);
         pretty_print();
         */
     }
