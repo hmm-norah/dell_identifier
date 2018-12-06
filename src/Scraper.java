@@ -34,7 +34,7 @@ class Scraper {
             driver.findElement(By.cssSelector("#buttonsColumn > span:nth-child(2)")).click();
             driver.switchTo().defaultContent();
         }catch(NoSuchElementException not_found){
-            System.out.println("iFrame not found.");
+            //System.out.println("iFrame not found.");
         }
 
         safeclick("#tab-configuration > a");
@@ -122,53 +122,99 @@ class Scraper {
     }
 
     private void hunt(){
-        int i = 1;
+        int i = 2;
 
         driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        model_number_entry = driver.findElement(By.cssSelector("#pd-support-banner > div > div > div > div > h1 > span")).getText().split(" ")[3];
-        while(size.equals("NOT FOUND!") || model_number_entry.equals("NOT FOUND!") || processor.equals("NOT FOUND!")) {
-            String text_entry = driver.findElement(By.cssSelector("#subSectionB > div:nth-child(2) > div > " +
-                    "div:nth-child(" + i + ") > div.bottom-offset-10 > a > span.show-collapsed")).getText();
 
-            if (text_entry.contains("Ultra Small Form Factor EPA") || text_entry.contains("Ultra Small Form  Factor EPA"))
-                size = "Ultra Small (US)";
-            else if (text_entry.contains("Small Form Facto r") || text_entry.contains("Small Form Factor") || text_entry.contains("Slim Form Factor"))
-                size = "Small (S)";
-            else if (text_entry.contains("Desktop Base") || text_entry.contains("Desktop EPA") ||
-                    text_entry.contains("Desktop EPA Base") || text_entry.contains("Desktop"))
-                size = "Half-Height (DT)";
-            else if (text_entry.contains("MT CTO") || text_entry.contains("Minitower EPA Ba se") ||
-                    text_entry.contains("Minitower Base") || text_entry.contains("Minitower BTX Ba se"))
-                size = "Mid-Tower (MT)";
+        //get model number
+        try {
+            model_number_entry = driver.findElement(By.cssSelector("#pd-support-banner > div > div > div > div > h1 > span")).getText().split(" ")[3];
+        }catch(ArrayIndexOutOfBoundsException e){
+            System.out.print("Model Number not found, please enter: ");
+            model_number_entry = new Scanner(System.in).nextLine();
+        }
 
-/*
-            if(!model_set && text_entry.contains("OptiPlex")){
-                Pattern pattern = Pattern.compile("(?<=\\bOptiPlex\\s)(\\w+)");
-                Matcher matcher = pattern.matcher(text_entry);
-                if (matcher.find())
-                    model_number_entry = matcher.group(1);
-                model_set = true;
+        //get form factor
+        String text_entry = driver.findElement(By.cssSelector("#subSectionB > div:nth-child(2) > div > " +
+                "div:nth-child(" + 1 + ") > div.bottom-offset-10 > a > span.show-collapsed")).getText();
+
+        if (text_entry.contains("Ultra Small Form Factor EPA") || text_entry.contains("Ultra Small Form  Factor EPA"))
+            size = "Ultra Small (US)";
+        else if (text_entry.contains("Small Form Facto r") || text_entry.contains("Small Form Factor") || text_entry.contains("Slim Form Factor"))
+            size = "Small (S)";
+        else if (text_entry.contains("Desktop Base") || text_entry.contains("Desktop EPA") ||
+                text_entry.contains("Desktop EPA Base") || text_entry.contains("Desktop"))
+            size = "Half-Height (DT)";
+        else if (text_entry.contains("MT") || text_entry.contains("Minitower"))
+
+            size = "Mid-Tower (MT)";
+        else{
+            System.out.println("Model number not found. Select correct type: \n" +
+                    "1. Mid-tower\n" +
+                    "2. Half-height\n" +
+                    "3. Small form factor\n" +
+                    "4. Ultra small form factor\n");
+
+            switch(Integer.valueOf(new Scanner(System.in).nextLine())){
+                case 1:
+                    size = "Mid-Tower (MT)";
+                    break;
+                case 2:
+                    size = "Half-Height (DT)";
+                    break;
+                case 3:
+                    size = "Small (S)";
+                    break;
+                case 4:
+                    size = "Ultra Small (US)";
+                    break;
             }
-*/
+        }
 
-            if (text_entry.contains("Core i5") || text_entry.contains("CI5") || text_entry.contains("i5") || text_entry.contains("Intel Core I5 Label"))
-                processor = "Core i5";
-            else if (text_entry.contains("Core i7") || text_entry.contains("i7") || text_entry.contains(("CI7")))
-                processor = "Core i7";
-            else if (text_entry.contains("Core i3") || text_entry.contains("CORE i3") || text_entry.contains("CI3"))
-                processor = "Core i3";
-            i += 1;
+
+        //search for processor
+        try {
+            do {
+
+                if(text_entry.toUpperCase().matches("(.*)I5(.*)"))
+                    processor = "Core i5";
+                else if (text_entry.toUpperCase().matches("(.*)I7(.*)"))
+                    processor = "Core i7";
+                else if (text_entry.toUpperCase().matches("(.*)I3(.*)"))
+                    processor = "Core i3";
+
+                text_entry = driver.findElement(By.cssSelector("#subSectionB > div:nth-child(2) > div > " +
+                        "div:nth-child(" + i + ") > div.bottom-offset-10 > a > span.show-collapsed")).getText();
+                i += 1;
+            } while (processor.equals("NOT FOUND!"));
+        }catch(java.util.NoSuchElementException not_found){
+            System.out.println("Processor not found, please select a type:\n" +
+                    "3. i3\n" +
+                    "5. i5\n" +
+                    "7. i7\n\n");
+
+            switch(Integer.valueOf(new Scanner(System.in).nextLine())){
+                case 3:
+                    processor = "Core i3";
+                    break;
+                case 5:
+                    processor = "Core i5";
+                    break;
+                case 7:
+                    processor = "Core i7";
+                    break;
+            }
         }
     }
 
     private void safeclick(String selector){
         try {
-            driver.manage().timeouts().implicitlyWait(1, TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
             driver.findElement(By.cssSelector(selector)).click();
         }catch(NoSuchElementException not_found){
             try {
                 System.out.println(selector + " not found... waiting");
-                driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+                driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
                 driver.findElement(By.cssSelector(selector)).click();
             }catch(NoSuchElementException not_found_again){
                 System.out.println("Still couldn't find it... shutting down");
