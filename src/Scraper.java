@@ -207,7 +207,7 @@ class Scraper {
         }
     }
 
-    private void safeclick(String selector){
+    private boolean safeclick(String selector){
         try {
             driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
             driver.findElement(By.cssSelector(selector)).click();
@@ -217,10 +217,20 @@ class Scraper {
                 driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
                 driver.findElement(By.cssSelector(selector)).click();
             }catch(NoSuchElementException not_found_again){
-                System.out.println("Still couldn't find it... shutting down");
-                System.out.println(not_found_again.toString());
-                driver.quit();
-                System.exit(-1);
+                try {
+                    System.out.print("Refreshing page, trying again.");
+                    driver.get(driver.getCurrentUrl());
+                    driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+                    driver.findElement(By.cssSelector(selector)).click();
+                }catch(NoSuchElementException not_found_after_refresh){
+                    System.out.print("Looking for element " + selector + ", not found. Falling back.");
+                    /*
+                    System.out.println("Still couldn't find it... shutting down");
+                    System.out.println(not_found_again.toString());
+                    driver.quit();
+                    System.exit(-1);
+                    */
+                }
             }
         }
 
