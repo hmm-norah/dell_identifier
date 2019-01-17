@@ -207,7 +207,7 @@ class Scraper {
         }
     }
 
-    private boolean safeclick(String selector){
+    private void safeclick(String selector){
         try {
             driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
             driver.findElement(By.cssSelector(selector)).click();
